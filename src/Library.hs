@@ -7,7 +7,7 @@ import PdePreludat
 data Guantelete = Guantelete {
     material :: String,
     gemas    :: [Gema]
-}
+} deriving (Show, Eq)
 
 data Personaje = Personaje {
     edad        :: Number,
@@ -15,7 +15,13 @@ data Personaje = Personaje {
     habilidades :: [String],
     nombre      :: String,
     planeta     :: String
-}
+} deriving (Show, Eq)
+
+ironMan :: Personaje
+ironMan = Personaje 50 120 ["supertraje", "ingenieria"] "Tony Estrella" "Bordor"
+
+thor :: Personaje
+thor = Personaje 38 250 ["Usar Mjolnir", "Fuerza"] "Thor Son of Odin" "Asgard"
 
 type Universo = [Personaje]
 
@@ -94,12 +100,31 @@ laGemaLoca gema = gema . gema
 
 -- Punto 4
 guanteleteDeGoma :: [Gema]
-guanteleteDeGoma = [elTiempo, elAlma "usar Mjolnir", laGemaLoca (elAlma "programacion en Haskell")]
+guanteleteDeGoma = [elTiempo, elAlma "usar Mjolnir", laGemaLoca $ elAlma "programacion en Haskell"]
 
 -- Punto 5
 utilizar :: [Gema] -> Gema
 utilizar gemas personaje = foldr ($) personaje gemas
 
 -- Punto 6
--- gemaMasPoderosa :: Guantelete -> Personaje -> Personaje
--- gemaMasPoderosa guantelete personaje 
+gemaMasPoderosa :: Guantelete -> Personaje -> Gema
+gemaMasPoderosa guantelete personaje = masPoderosaDelGuantelete personaje (gemas guantelete)
+
+masPoderosaDelGuantelete :: Personaje -> [Gema] -> Gema
+masPoderosaDelGuantelete _ [gema] = gema
+masPoderosaDelGuantelete personaje (primeraGema:segundaGema:restoGemas)
+ | (energia . primeraGema) personaje < (energia . segundaGema) personaje = masPoderosaDelGuantelete personaje (primeraGema:restoGemas)
+ | otherwise                                                             = masPoderosaDelGuantelete personaje (segundaGema:restoGemas)
+
+-- Punto 7
+infinitasGemas :: Gema -> [Gema]
+infinitasGemas gema = gema : infinitasGemas gema
+
+guanteleteDeLocos :: Guantelete
+guanteleteDeLocos = Guantelete "vesconite" (infinitasGemas elTiempo)
+ 
+usoLasTresPrimerasGemas :: Guantelete -> Personaje -> Personaje
+usoLasTresPrimerasGemas guantelete = (utilizar . take 3 . gemas) guantelete
+
+-- gemaMasPoderosa guanteleteDeLocos ironMan
+-- usoLasTresPrimerasGemas guanteleteDeLocos ironMan
